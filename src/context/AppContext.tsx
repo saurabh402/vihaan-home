@@ -29,12 +29,15 @@ import {
   INITIAL_TICKETS,
   CITIES_LIST
 } from '../data/mockData';
+import { TRANSLATIONS, Translations, SupportedLanguage } from '../data/translations';
 import confetti from 'canvas-confetti';
 
 interface Toast {
   id: string;
   type: 'success' | 'info' | 'warning' | 'error';
   message: string;
+  onUndo?: () => void;
+  undoLabel?: string;
 }
 
 interface AppContextType {
@@ -46,8 +49,9 @@ interface AppContextType {
   allProfessionals: Professional[];
   selectedCity: string;
   setSelectedCity: (city: string) => void;
-  language: 'en' | 'hi' | 'hinglish';
-  setLanguage: (lang: 'en' | 'hi' | 'hinglish') => void;
+  language: SupportedLanguage;
+  setLanguage: (lang: SupportedLanguage) => void;
+  t: Translations;
   switchRole: (role: UserRole) => void;
   loginAsDemo: (role: UserRole) => void;
   logout: () => void;
@@ -133,8 +137,10 @@ interface AppContextType {
 
   // Toasts
   toasts: Toast[];
-  showToast: (message: string, type?: 'success' | 'info' | 'warning' | 'error') => void;
+  showToast: (message: string, type?: 'success' | 'info' | 'warning' | 'error', onUndo?: () => void, undoLabel?: string) => void;
   removeToast: (id: string) => void;
+  undoLastAction?: () => void;
+  canUndo?: boolean;
 
   // Favorites
   favorites: { serviceIds: string[]; professionalIds: string[] };
@@ -152,7 +158,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [professionalData, setProfessionalData] = useState<Professional>(DEMO_USERS.professional);
   const [allProfessionals, setAllProfessionals] = useState<Professional[]>(PROS_LIST);
   const [selectedCity, setSelectedCity] = useState<string>('Bhopal, MP');
-  const [language, setLanguage] = useState<'en' | 'hi' | 'hinglish'>('en');
+  const [language, setLanguageState] = useState<SupportedLanguage>(() => {
+    try {
+      const saved = localStorage.getItem('vihaan_lang') as SupportedLanguage;
+      if (saved && (saved === 'en' || saved === 'hi' || saved === 'hinglish')) {
+        return saved;
+      }
+    } catch (e) {
+      // fallback
+    }
+    return 'en';
+  });
+
+  const setLanguage = (lang: SupportedLanguage) => {
+    const prevLang = language;
+    setLanguageState(lang);
+    try {
+      localStorage.setItem('vihaan_lang', lang);
+    } catch (e) {
+      // ignore
+    }
+    showToast(
+      lang === 'hi'
+        ? 'भाषा हिन्दी में बदली गई'
+        : lang === 'hinglish'
+        ? 'Language Hinglish mein change ho gayi'
+        : 'Language changed to English',
+      'info',
+      () => setLanguage(prevLang)
+    );
+  };
+
+  const t = TRANSLATIONS[language] || TRANSLATIONS.en;
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(true);
   const [viewMode, setViewMode] = useState<'mobile-frame' | 'responsive-desktop'>('mobile-frame');
 
@@ -247,31 +284,51 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   ]);
 
-  // Toast Helper
-  const showToast = (message: string, type: 'success' | 'info' | 'warning' | 'error' = 'success') => {
+  // Global Undo Action Stack
+  const [lastUndoAction, setLastUndoAction] = useState<(() => void) | null>(null);
+
+  // Toast Helper with Undo Action support
+  const showToast = (
+    message: string,
+    type: 'success' | 'info' | 'warning' | 'error' = 'success',
+    onUndo?: () => void,
+    undoLabel: string = 'Undo'
+  ) => {
     const id = 'toast_' + Math.random().toString(36).substring(2, 9);
-    setToasts((prev) => [...prev, { id, type, message }]);
+    if (onUndo) {
+      setLastUndoAction(() => onUndo);
+    }
+    setToasts((prev) => [...prev, { id, type, message, onUndo, undoLabel }]);
     setTimeout(() => {
       setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4000);
+    }, 5500);
   };
 
   const removeToast = (id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
+  const undoLastAction = () => {
+    if (lastUndoAction) {
+      lastUndoAction();
+      setLastUndoAction(null);
+      showToast('Action undone successfully', 'info');
+    }
+  };
+
   // Role Switcher
   const switchRole = (role: UserRole) => {
+    const prevRole = currentRole;
     setCurrentRole(role);
     if (role === 'CUSTOMER') {
       setCurrentUser(customerData);
-      showToast('Switched to Customer Dashboard (Rahul Sharma)', 'info');
+      showToast('Switched to Customer Dashboard (Rahul Sharma)', 'info', () => switchRole(prevRole));
     } else if (role === 'PROFESSIONAL') {
       setCurrentUser(professionalData);
-      showToast('Switched to Service Professional Dashboard (Rohit Kumar)', 'info');
+      showToast('Switched to Service Professional Dashboard (Rohit Kumar)', 'info', () => switchRole(prevRole));
     } else {
       setCurrentUser(DEMO_USERS.admin);
-      showToast('Switched to Admin Control Panel (Sanjay Verma)', 'info');
+      showToast('Switched to Admin Control Panel (Sanjay Verma)', 'info', () => switchRole(prevRole));
     }
   };
 
@@ -282,7 +339,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const logout = () => {
     setIsAuthenticated(false);
-    showToast('Logged out successfully', 'info');
+    showToast('Logged out successfully', 'info', () => setIsAuthenticated(true));
   };
 
   // Service Catalog
@@ -292,17 +349,28 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       id: 'srv_' + Math.random().toString(36).substring(2, 9)
     };
     setServices((prev) => [srv, ...prev]);
-    showToast(`Service "${srv.name}" added successfully!`, 'success');
+    showToast(`Service "${srv.name}" added successfully!`, 'success', () => {
+      setServices((prev) => prev.filter((s) => s.id !== srv.id));
+    });
   };
 
   const updateService = (id: string, updates: Partial<ServiceItem>) => {
+    const original = services.find((s) => s.id === id);
     setServices((prev) => prev.map((s) => (s.id === id ? { ...s, ...updates } : s)));
-    showToast('Service updated successfully', 'success');
+    showToast('Service updated successfully', 'success', () => {
+      if (original) {
+        setServices((prev) => prev.map((s) => (s.id === id ? original : s)));
+      }
+    });
   };
 
   const deleteService = (id: string) => {
+    const targetService = services.find((s) => s.id === id);
+    if (!targetService) return;
     setServices((prev) => prev.filter((s) => s.id !== id));
-    showToast('Service deleted from catalog', 'warning');
+    showToast(`Service "${targetService.name}" deleted`, 'warning', () => {
+      setServices((prev) => [targetService, ...prev]);
+    });
   };
 
   // Booking Flow & State Machine
@@ -880,6 +948,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setSelectedCity,
         language,
         setLanguage,
+        t,
         switchRole,
         loginAsDemo,
         logout,
@@ -941,6 +1010,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         toasts,
         showToast,
         removeToast,
+        undoLastAction,
+        canUndo: !!lastUndoAction,
         favorites,
         toggleFavoriteService,
         toggleFavoritePro

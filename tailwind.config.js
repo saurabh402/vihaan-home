@@ -32,7 +32,9 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['Outfit', 'Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+        display: ['Outfit', 'sans-serif'],
+        body: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
         'card': '0 4px 20px -2px rgba(6, 26, 51, 0.08), 0 2px 6px -1px rgba(6, 26, 51, 0.04)',

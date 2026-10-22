@@ -30,7 +30,8 @@ export const Header: React.FC<{
     openModal,
     logout,
     setIsConciergeOpen,
-    viewMode
+    viewMode,
+    t
   } = useApp();
 
   const [isCityDropdownOpen, setIsCityDropdownOpen] = useState(false);
@@ -38,7 +39,7 @@ export const Header: React.FC<{
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-sm transition-all">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-[0_1px_4px_rgba(0,0,0,0.03)] transition-all">
       {/* Top Bar for Desktop or Mobile */}
       <div className="px-4 py-3 flex items-center justify-between gap-3 max-w-7xl mx-auto">
         {/* Left: Brand or Greeting */}
@@ -49,11 +50,11 @@ export const Header: React.FC<{
             </div>
           ) : (
             <div className="flex flex-col">
-              <span className="text-[11px] font-medium text-slate-500 flex items-center gap-1">
-                Good Morning 👋
+              <span className="text-[11px] font-semibold text-slate-400 flex items-center gap-1">
+                {t.welcomeBack}
               </span>
-              <span className="text-base font-bold text-[#061A33] tracking-tight">
-                {currentRole === 'CUSTOMER' ? customerData.name : currentRole === 'PROFESSIONAL' ? 'Rohit Kumar (Pro)' : 'Admin Portal'}
+              <span className="text-sm font-extrabold text-[#061A33] tracking-tight">
+                {currentRole === 'CUSTOMER' ? customerData.name : currentRole === 'PROFESSIONAL' ? `${customerData.name} (Pro)` : 'Admin Portal'}
               </span>
             </div>
           )}
@@ -62,9 +63,9 @@ export const Header: React.FC<{
           <div className="relative">
             <button
               onClick={() => setIsCityDropdownOpen(!isCityDropdownOpen)}
-              className="flex items-center gap-1 text-xs font-semibold text-[#0B3A78] bg-[#F0F5FF] hover:bg-[#E8F0FE] px-2.5 py-1.5 rounded-full border border-blue-100 transition"
+              className="flex items-center gap-1.5 text-xs font-semibold text-[#0B3A78] bg-[#F0F5FF] hover:bg-[#E8F0FE] px-3 py-1.5 rounded-full border border-blue-200/60 transition"
             >
-              <MapPin className="w-3.5 h-3.5 text-[#D9A928] flex-shrink-0" />
+              <MapPin className="w-3.5 h-3.5 text-[#B88A1A] flex-shrink-0" />
               <span className="truncate max-w-[110px]">{selectedCity}</span>
               <ChevronDown className="w-3 h-3 text-slate-500" />
             </button>
@@ -158,7 +159,7 @@ export const Header: React.FC<{
                     className="w-full text-left px-4 py-2 hover:bg-[#F7F8FA] flex items-center gap-2.5 text-slate-700 font-medium"
                   >
                     <User className="w-3.5 h-3.5 text-slate-400" />
-                    <span>My Profile</span>
+                    <span>{t.myProfile}</span>
                   </button>
 
                   <button
@@ -169,7 +170,7 @@ export const Header: React.FC<{
                     className="w-full text-left px-4 py-2 hover:bg-[#F7F8FA] flex items-center gap-2.5 text-slate-700 font-medium"
                   >
                     <Calendar className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Booking History</span>
+                    <span>{t.bookingHistory}</span>
                   </button>
 
                   <button
@@ -180,7 +181,7 @@ export const Header: React.FC<{
                     className="w-full text-left px-4 py-2 hover:bg-[#F7F8FA] flex items-center gap-2.5 text-slate-700 font-medium"
                   >
                     <Sparkles className="w-3.5 h-3.5 text-[#D9A928]" />
-                    <span>Care+ Gold Pass</span>
+                    <span>{t.careGoldPass}</span>
                   </button>
 
                   <button
@@ -191,7 +192,7 @@ export const Header: React.FC<{
                     className="w-full text-left px-4 py-2 hover:bg-[#F7F8FA] flex items-center gap-2.5 text-slate-700 font-medium"
                   >
                     <ShieldCheck className="w-3.5 h-3.5 text-slate-400" />
-                    <span>Help & Support</span>
+                    <span>{t.helpSupport}</span>
                   </button>
                 </div>
 
@@ -204,7 +205,7 @@ export const Header: React.FC<{
                     className="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600 font-semibold flex items-center gap-2.5"
                   >
                     <LogOut className="w-3.5 h-3.5" />
-                    <span>Sign Out</span>
+                    <span>{t.signOut}</span>
                   </button>
                 </div>
               </div>

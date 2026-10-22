@@ -10,7 +10,8 @@ import {
   Globe,
   Sparkles,
   KeyRound,
-  LogOut
+  LogOut,
+  RotateCcw
 } from 'lucide-react';
 
 export const RoleSwitcherBar: React.FC = () => {
@@ -21,16 +22,19 @@ export const RoleSwitcherBar: React.FC = () => {
     setViewMode,
     language,
     setLanguage,
+    t,
     isAuthenticated,
     loginAsDemo,
     logout,
-    openModal
+    openModal,
+    canUndo,
+    undoLastAction
   } = useApp();
 
   const roles: { role: UserRole; label: string; icon: any; badge: string }[] = [
-    { role: 'CUSTOMER', label: 'Customer (Rahul)', icon: UserCheck, badge: 'Care+ Gold' },
-    { role: 'PROFESSIONAL', label: 'Partner (Rohit)', icon: Briefcase, badge: '4.9 ⭐ Pro' },
-    { role: 'ADMIN', label: 'Super Admin', icon: ShieldCheck, badge: 'Control Hub' }
+    { role: 'CUSTOMER', label: t.roleCustomer, icon: UserCheck, badge: 'Care+ Gold' },
+    { role: 'PROFESSIONAL', label: t.rolePro, icon: Briefcase, badge: '4.9 ⭐ Pro' },
+    { role: 'ADMIN', label: t.roleAdmin, icon: ShieldCheck, badge: 'Control Hub' }
   ];
 
   return (
@@ -42,13 +46,13 @@ export const RoleSwitcherBar: React.FC = () => {
           <span>VIHAAN v1.0</span>
         </div>
         <span className="hidden sm:inline text-slate-300 font-medium">
-          Multi-Role Interactive Marketplace
+          {t.brandTagline}
         </span>
       </div>
 
       {/* Role Switcher Chips */}
       <div className="flex items-center gap-1.5 bg-[#040F20] p-1 rounded-lg border border-slate-700">
-        <span className="text-[11px] text-slate-400 px-1.5 font-medium hidden md:inline">Role:</span>
+        <span className="text-[11px] text-slate-400 px-1.5 font-medium hidden md:inline">{t.roleLabel}</span>
         {roles.map((r) => {
           const Icon = r.icon;
           const isActive = currentRole === r.role && isAuthenticated;
@@ -126,6 +130,18 @@ export const RoleSwitcherBar: React.FC = () => {
           <KeyRound className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Demo OTP: 123456</span>
         </button>
+
+        {/* Quick Undo Button (Rule: Every new feature must include an 'Undo' button) */}
+        {canUndo && (
+          <button
+            onClick={undoLastAction}
+            title={t.undo}
+            className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-400/20 text-[#F5D36A] hover:bg-amber-400/30 border border-amber-400/50 rounded-lg text-xs font-bold transition active:scale-95 shadow-sm"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>{t.undo}</span>
+          </button>
+        )}
 
         {isAuthenticated && (
           <button

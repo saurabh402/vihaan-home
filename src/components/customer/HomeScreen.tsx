@@ -43,11 +43,29 @@ export const HomeScreen: React.FC<{
     setIsConciergeOpen,
     favorites,
     toggleFavoriteService,
-    activeBooking
+    activeBooking,
+    t
   } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeBannerIdx, setActiveBannerIdx] = useState(0);
+
+  // Helper to translate category names dynamically
+  const getCategoryName = (slug: string, defaultName: string) => {
+    switch (slug) {
+      case 'salon': return t.catSalon;
+      case 'beauty': return t.catBeauty;
+      case 'spa': return t.catSpa;
+      case 'cleaning': return t.catCleaning;
+      case 'repair': return t.catRepair;
+      case 'pest-control': return t.catPestControl;
+      case 'home-improvement': return t.catHomeImprovement;
+      case 'moving': return t.catMoving;
+      case 'tech-services': return t.catTechServices;
+      case 'emergency': return t.catEmergency;
+      default: return defaultName;
+    }
+  };
 
   // Icon mapping for categories
   const getCategoryIcon = (slug: string) => {
@@ -90,15 +108,15 @@ export const HomeScreen: React.FC<{
 
   return (
     <div className="pb-24 pt-2 px-3 sm:px-4 space-y-5 select-none animate-fade-in">
-      {/* 1. Search Bar with Voice AI Mic (Matching Screenshot) */}
+      {/* 1. Search Bar with Voice AI Mic */}
       <div className="relative">
-        <div className="flex items-center gap-2 bg-white rounded-2xl p-1.5 shadow-sm border border-slate-200/80 focus-within:border-[#0B3A78] focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+        <div className="flex items-center gap-2 bg-white rounded-2xl p-1.5 shadow-sm border border-slate-200/90 focus-within:border-[#0B3A78] focus-within:ring-2 focus-within:ring-[#0B3A78]/10 transition-all duration-200">
           <Search className="w-4 h-4 text-slate-400 ml-2.5 flex-shrink-0" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search for services..."
+            placeholder={t.searchPlaceholder}
             className="w-full bg-transparent py-1.5 text-xs font-semibold text-[#061A33] placeholder-slate-400 focus:outline-none"
           />
           {searchQuery && (
@@ -106,15 +124,15 @@ export const HomeScreen: React.FC<{
               onClick={() => setSearchQuery('')}
               className="text-slate-400 hover:text-slate-600 text-xs px-2"
             >
-              Clear
+              {t.searchClear}
             </button>
           )}
           <button
             onClick={() => setIsConciergeOpen(true)}
-            title="Search with Vihaan AI Voice"
-            className="p-2 bg-slate-50 hover:bg-amber-50 rounded-xl text-[#D9A928] border border-amber-200/60 hover:scale-105 active:scale-95 transition"
+            title={t.searchVoiceTitle}
+            className="p-2 bg-slate-50 hover:bg-[#FDF6E2] rounded-xl text-[#061A33] border border-amber-300/50 hover:border-amber-400 hover:scale-105 active:scale-95 transition"
           >
-            <Mic className="w-4 h-4 text-[#D9A928]" />
+            <Mic className="w-4 h-4 text-[#B88A1A]" />
           </button>
         </div>
 
@@ -124,7 +142,7 @@ export const HomeScreen: React.FC<{
             {filteredServices.length > 0 ? (
               <div className="space-y-1">
                 <div className="px-2 py-1 text-[10px] font-bold uppercase text-slate-400 tracking-wider">
-                  Services ({filteredServices.length})
+                  {t.searchServicesCount} ({filteredServices.length})
                 </div>
                 {filteredServices.map((srv) => (
                   <div
@@ -152,7 +170,7 @@ export const HomeScreen: React.FC<{
               </div>
             ) : (
               <div className="p-4 text-center text-xs text-slate-400">
-                No matching service found for "{searchQuery}". Ask Vihaan Concierge AI!
+                {t.searchNoResults}
               </div>
             )}
           </div>
@@ -173,40 +191,39 @@ export const HomeScreen: React.FC<{
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-bold text-[#F5D36A] uppercase tracking-wider bg-amber-400/20 px-1.5 py-0.5 rounded">
-                  LIVE STATUS
+                  {t.liveStatus}
                 </span>
-                <span className="text-[11px] text-slate-300">Arriving in 18 mins</span>
+                <span className="text-[11px] text-slate-300">{t.arrivingIn}</span>
               </div>
               <p className="text-xs font-bold text-white mt-0.5">
-                {activeBooking.assignedProfessional?.name || 'Rohit Kumar'} is On The Way
+                {activeBooking.assignedProfessional?.name || 'Rohit Kumar'} {t.onTheWay}
               </p>
             </div>
           </div>
           <div className="flex items-center gap-1 text-xs font-bold text-[#F5D36A] group-hover:translate-x-1 transition-transform">
-            <span>Track</span>
+            <span>{t.trackCta}</span>
             <ChevronRight className="w-4 h-4" />
           </div>
         </div>
       )}
 
-      {/* 3. Hero Offer Banner (Matching Reference Mockup 20% OFF Gold Gift Box) */}
-      <div className="relative rounded-3xl overflow-hidden shadow-card border border-amber-200/40 bg-gradient-to-r from-[#061A33] via-[#0B3A78] to-[#144E9E] p-4 text-white">
-        {/* Ambient Gold Glows */}
-        <div className="absolute top-0 right-0 w-44 h-44 bg-[#D9A928]/20 rounded-full blur-2xl pointer-events-none"></div>
+      {/* 3. Hero Offer Banner */}
+      <div className="relative rounded-3xl overflow-hidden shadow-card border border-amber-200/50 bg-gradient-to-br from-[#061A33] via-[#0B3A78] to-[#040F20] p-4 text-white">
+        {/* Soft Ambient Glow */}
+        <div className="absolute top-0 right-0 w-48 h-48 bg-[#D9A928]/15 rounded-full blur-3xl pointer-events-none"></div>
 
         <div className="relative z-10 flex items-center justify-between gap-4">
           <div className="space-y-1.5 max-w-[62%]">
-            <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/20 border border-[#D9A928]/50 text-[#F5D36A] text-[10px] font-extrabold uppercase tracking-wider">
-              <span>🔥</span>
-              <span>{currentBanner.badge}</span>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-amber-400/15 border border-amber-400/40 text-[#F5D36A] text-[10px] font-bold uppercase tracking-wider">
+              <span>{activeBannerIdx === 0 ? t.specialOfferBadge : activeBannerIdx === 1 ? t.weekendSpecialBadge : t.membershipBadge}</span>
             </div>
 
             <h3 className="text-base sm:text-lg font-extrabold text-white tracking-tight leading-snug">
-              {currentBanner.title}
+              {activeBannerIdx === 0 ? t.bannerFirstBookingTitle : activeBannerIdx === 1 ? t.bannerCleaningTitle : t.bannerCareTitle}
             </h3>
 
-            <p className="text-[11px] text-slate-200 line-clamp-1">
-              {currentBanner.subtitle}
+            <p className="text-[11px] text-slate-200 line-clamp-2 leading-relaxed">
+              {activeBannerIdx === 0 ? t.bannerFirstBookingSubtitle : activeBannerIdx === 1 ? t.bannerCleaningSubtitle : t.bannerCareSubtitle}
             </p>
 
             <button
@@ -217,20 +234,20 @@ export const HomeScreen: React.FC<{
                   openModal('vihaanCare');
                 }
               }}
-              className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-[#D9A928] to-[#B88A1A] text-[#061A33] rounded-xl text-xs font-extrabold shadow-md hover:scale-105 active:scale-95 transition"
+              className="mt-2.5 inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-[#D9A928] hover:bg-[#e0b232] text-[#061A33] rounded-xl text-xs font-extrabold shadow-sm hover:scale-105 active:scale-95 transition"
             >
-              <span>{currentBanner.ctaText}</span>
+              <span>{activeBannerIdx === 0 ? t.bookNowCta : activeBannerIdx === 1 ? t.viewOfferCta : t.joinNowCta}</span>
             </button>
           </div>
 
-          {/* 3D Realistic Gold Gift Box / Luxury Visual */}
+          {/* Luxury Visual Asset */}
           <div className="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0 flex items-center justify-center relative">
             <img
               src="https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=300&auto=format&fit=crop&q=80"
-              alt="Special Gift Box"
-              className="w-full h-full object-cover rounded-2xl border border-amber-300/40 shadow-lg"
+              alt="Special Offer Hamper"
+              className="w-full h-full object-cover rounded-2xl border border-amber-300/40 shadow-md"
             />
-            <div className="absolute -top-1 -right-1 bg-[#D9A928] text-[#061A33] text-[9px] font-black px-1.5 py-0.5 rounded-full shadow">
+            <div className="absolute -top-1 -right-1 bg-[#D9A928] text-[#061A33] text-[9px] font-black px-2 py-0.5 rounded-full shadow">
               20% OFF
             </div>
           </div>
@@ -242,23 +259,23 @@ export const HomeScreen: React.FC<{
             <button
               key={idx}
               onClick={() => setActiveBannerIdx(idx)}
-              className={`h-1.5 rounded-full transition-all ${
-                activeBannerIdx === idx ? 'w-5 bg-[#D9A928]' : 'w-1.5 bg-white/40'
+              className={`h-1.5 rounded-full transition-all duration-300 ${
+                activeBannerIdx === idx ? 'w-6 bg-[#D9A928]' : 'w-1.5 bg-white/40 hover:bg-white/60'
               }`}
             />
           ))}
         </div>
       </div>
 
-      {/* 4. Categories Grid (Matching Reference Mockup Icons) */}
+      {/* 4. Categories Grid */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-[#061A33] tracking-tight">Categories</h3>
+        <div className="flex items-center justify-between mb-3 px-0.5">
+          <h3 className="text-sm font-extrabold text-[#061A33] tracking-tight">{t.browseServices}</h3>
           <button
             onClick={onViewAllCategories}
             className="text-xs font-semibold text-[#0B3A78] hover:text-[#061A33] flex items-center gap-0.5"
           >
-            <span>View All</span>
+            <span>{t.viewAll}</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -268,33 +285,33 @@ export const HomeScreen: React.FC<{
             <button
               key={cat.id}
               onClick={() => onSelectCategory(cat)}
-              className="flex flex-col items-center p-2 rounded-2xl bg-white hover:bg-blue-50/50 border border-slate-100 hover:border-blue-100 shadow-sm transition-all group active:scale-95 text-center"
+              className="flex flex-col items-center p-2 rounded-2xl bg-white hover:bg-[#F0F5FF]/60 border border-slate-200/80 hover:border-blue-200/80 shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition-all duration-200 group active:scale-95 text-center"
             >
-              <div className="w-12 h-12 rounded-2xl bg-[#F7F8FA] group-hover:bg-white group-hover:shadow-md flex items-center justify-center transition-all mb-1.5 border border-slate-100">
+              <div className="w-12 h-12 rounded-2xl bg-[#F7F8FA] group-hover:bg-white group-hover:shadow-sm flex items-center justify-center transition-all mb-1.5 border border-slate-100">
                 {getCategoryIcon(cat.slug)}
               </div>
               <span className="text-[11px] font-bold text-slate-800 line-clamp-1 group-hover:text-[#0B3A78]">
-                {cat.name}
+                {getCategoryName(cat.slug, cat.name)}
               </span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* 5. Quick Book Cards (Matching Reference Mockup Haircut, Deep Cleaning, Full Body Spa) */}
+      {/* 5. Quick Book Cards */}
       <div>
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-3 px-0.5">
           <div className="flex items-center gap-1.5">
-            <h3 className="text-sm font-bold text-[#061A33] tracking-tight">Quick Book</h3>
-            <span className="px-1.5 py-0.5 bg-blue-100 text-[#0B3A78] text-[9px] font-bold rounded">
-              TOP RATED
+            <h3 className="text-sm font-extrabold text-[#061A33] tracking-tight">{t.mostPopular}</h3>
+            <span className="px-1.5 py-0.5 bg-blue-50 text-[#0B3A78] text-[9px] font-bold rounded border border-blue-100">
+              {t.topRatedBadge}
             </span>
           </div>
           <button
             onClick={onViewAllCategories}
             className="text-xs font-semibold text-[#0B3A78] hover:text-[#061A33] flex items-center gap-0.5"
           >
-            <span>See All</span>
+            <span>{t.seeAll}</span>
             <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
@@ -304,15 +321,15 @@ export const HomeScreen: React.FC<{
             <div
               key={srv.id}
               onClick={() => onSelectService(srv)}
-              className="bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-card border border-slate-100 p-2 cursor-pointer transition-all hover:-translate-y-0.5 group flex flex-col justify-between"
+              className="bg-white rounded-2xl overflow-hidden shadow-[0_1px_3px_rgba(0,0,0,0.05)] hover:shadow-card border border-slate-200/80 p-2 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 group flex flex-col justify-between"
             >
-              <div className="relative rounded-xl overflow-hidden mb-2 aspect-square">
+              <div className="relative rounded-xl overflow-hidden mb-2 aspect-square bg-slate-100">
                 <img
                   src={srv.image}
                   alt={srv.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                 />
-                <div className="absolute top-1 right-1 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded-full flex items-center gap-0.5 text-[9px] font-bold text-white">
+                <div className="absolute top-1.5 right-1.5 bg-black/70 backdrop-blur-md px-1.5 py-0.5 rounded-full flex items-center gap-1 text-[9px] font-bold text-white">
                   <Star className="w-2.5 h-2.5 text-[#D9A928] fill-[#D9A928]" />
                   <span>{srv.rating}</span>
                 </div>
@@ -323,7 +340,7 @@ export const HomeScreen: React.FC<{
                   {srv.name}
                 </h4>
                 <p className="text-[10px] text-slate-500 mt-0.5">
-                  from <span className="font-bold text-[#061A33]">₹{srv.price}</span>
+                  {t.fromPrice} <span className="font-bold text-[#061A33]">₹{srv.price}</span>
                 </p>
               </div>
             </div>
@@ -331,53 +348,53 @@ export const HomeScreen: React.FC<{
         </div>
       </div>
 
-      {/* 6. Vihaan Care+ Membership Pass Card (Matching Reference Screen 10) */}
+      {/* 6. Vihaan Care+ Membership Pass Card */}
       <div
         onClick={() => openModal('vihaanCare')}
-        className="rounded-3xl bg-gradient-to-br from-[#061A33] via-[#0B254A] to-[#1A1A1A] p-4 text-white shadow-lg border border-[#D9A928]/40 relative overflow-hidden cursor-pointer hover:border-[#D9A928] transition group"
+        className="rounded-3xl bg-gradient-to-br from-[#061A33] via-[#0B254A] to-[#040F20] p-4 text-white shadow-card border border-[#D9A928]/40 relative overflow-hidden cursor-pointer hover:border-[#D9A928] transition group"
       >
-        <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-[#D9A928]/15 rounded-full blur-2xl"></div>
+        <div className="absolute -right-8 -bottom-8 w-40 h-40 bg-[#D9A928]/10 rounded-full blur-2xl"></div>
 
-        <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center justify-between mb-3 relative z-10">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-[#D9A928]/20 border border-[#D9A928]/60 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-[#D9A928]/20 border border-[#D9A928]/50 flex items-center justify-center">
               <Sparkles className="w-4 h-4 text-[#F5D36A]" />
             </div>
             <div>
               <span className="text-[10px] font-extrabold tracking-widest text-[#F5D36A] uppercase">
-                Care+ Premium
+                {t.carePlusSubtitle}
               </span>
-              <h4 className="text-sm font-extrabold text-white">Vihaan Care+ Membership</h4>
+              <h4 className="text-sm font-extrabold text-white">{t.carePlusTitle}</h4>
             </div>
           </div>
-          <span className="text-xs font-extrabold text-[#D9A928] bg-amber-500/20 px-2 py-0.5 rounded-full border border-amber-500/30">
-            ₹499 / mo
+          <span className="text-xs font-extrabold text-[#D9A928] bg-amber-400/15 px-2.5 py-0.5 rounded-full border border-amber-400/30">
+            {t.carePlusPerMonth}
           </span>
         </div>
 
-        <div className="grid grid-cols-2 gap-1.5 text-[11px] text-slate-200 mb-3">
-          <div className="flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3 text-[#F5D36A]" />
-            <span>Priority Booking</span>
+        <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-200 mb-3 relative z-10">
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#F5D36A] flex-shrink-0" />
+            <span>{t.priorityBooking}</span>
           </div>
-          <div className="flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3 text-[#F5D36A]" />
-            <span>Up to 30% Extra Off</span>
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#F5D36A] flex-shrink-0" />
+            <span>{t.extraDiscount}</span>
           </div>
-          <div className="flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3 text-[#F5D36A]" />
-            <span>Free Inspection Visit</span>
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#F5D36A] flex-shrink-0" />
+            <span>{t.freeInspection}</span>
           </div>
-          <div className="flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3 text-[#F5D36A]" />
-            <span>Zero Convenience Fee</span>
+          <div className="flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#F5D36A] flex-shrink-0" />
+            <span>{t.zeroConvenienceFee}</span>
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t border-slate-700/80">
-          <span className="text-[10px] text-slate-400">Save up to ₹4,000/year</span>
-          <button className="px-3 py-1 bg-gradient-to-r from-[#D9A928] to-[#B88A1A] text-[#061A33] rounded-xl text-xs font-bold shadow group-hover:scale-105 transition">
-            Join Now →
+        <div className="flex items-center justify-between pt-2.5 border-t border-slate-700/80 relative z-10">
+          <span className="text-[11px] text-slate-300">{t.saveYearly}</span>
+          <button className="px-3.5 py-1.5 bg-[#D9A928] hover:bg-[#e0b232] text-[#061A33] rounded-xl text-xs font-bold shadow-sm group-hover:scale-105 transition">
+            {t.joinNowCta}
           </button>
         </div>
       </div>
@@ -385,33 +402,33 @@ export const HomeScreen: React.FC<{
       {/* 7. Emergency 90-Min Fast Booking Banner */}
       <div
         onClick={() => openModal('emergencyBooking')}
-        className="bg-gradient-to-r from-red-500/10 via-amber-500/10 to-transparent border border-red-200 rounded-2xl p-3.5 flex items-center justify-between cursor-pointer hover:bg-red-50 transition"
+        className="bg-white border border-rose-200/90 rounded-2xl p-3.5 flex items-center justify-between cursor-pointer hover:border-rose-400 hover:shadow-card transition duration-200"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-red-600 text-white flex items-center justify-center shadow-md flex-shrink-0 animate-pulse">
+          <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center flex-shrink-0">
             <Zap className="w-5 h-5 fill-current" />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-extrabold text-red-700">90-MIN EMERGENCY SOS</span>
-              <span className="text-[9px] bg-red-600 text-white font-bold px-1.5 rounded-full">FAST SLA</span>
+              <span className="text-xs font-extrabold text-[#061A33]">{t.emergencyTitle}</span>
+              <span className="text-[9px] bg-rose-600 text-white font-bold px-1.5 py-0.2 rounded-full">{t.emergencyBadge}</span>
             </div>
-            <p className="text-[11px] text-slate-600 mt-0.5">
-              Urgent Plumber, Electrician & Locksmith dispatched in 90 minutes.
+            <p className="text-[11px] text-slate-500 mt-0.5">
+              {t.emergencyDesc}
             </p>
           </div>
         </div>
-        <ChevronRight className="w-5 h-5 text-red-600" />
+        <ChevronRight className="w-5 h-5 text-slate-400" />
       </div>
 
-      {/* 8. Repeat Booking ("Book Again") (Section 18 of PDF) */}
-      <div className="bg-white rounded-2xl p-3.5 border border-slate-100 shadow-sm">
+      {/* 8. Repeat Booking ("Book Again") */}
+      <div className="bg-white rounded-2xl p-3.5 border border-slate-200/80 shadow-sm">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-1.5 text-xs font-bold text-[#061A33]">
             <Repeat className="w-4 h-4 text-[#0B3A78]" />
-            <span>Book Again</span>
+            <span>{t.bookAgain}</span>
           </div>
-          <span className="text-[10px] text-slate-400">Last booked: 24 May</span>
+          <span className="text-[10px] text-slate-400">{t.lastBooked}</span>
         </div>
 
         <div className="flex items-center justify-between">
@@ -419,7 +436,7 @@ export const HomeScreen: React.FC<{
             <img
               src={services[0].image}
               alt="Haircut"
-              className="w-12 h-12 rounded-xl object-cover"
+              className="w-12 h-12 rounded-xl object-cover border border-slate-100"
             />
             <div>
               <h4 className="text-xs font-bold text-[#061A33]">{services[0].name}</h4>
@@ -430,17 +447,17 @@ export const HomeScreen: React.FC<{
             onClick={() => openModal('booking', { service: services[0] })}
             className="px-3.5 py-1.5 bg-[#061A33] hover:bg-[#0B3A78] text-white rounded-xl text-xs font-bold shadow transition active:scale-95"
           >
-            BOOK AGAIN
+            {t.bookAgainCta}
           </button>
         </div>
       </div>
 
-      {/* 9. Packages & Combos (Section 20 of PDF) */}
+      {/* 9. Packages & Combos */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-[#061A33] tracking-tight">Packages & Combos</h3>
+          <h3 className="text-sm font-bold text-[#061A33] tracking-tight">{t.packagesCombos}</h3>
           <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-            SAVE UP TO ₹700
+            {t.saveUpTo}
           </span>
         </div>
 
@@ -471,7 +488,7 @@ export const HomeScreen: React.FC<{
                 <div className="flex items-center gap-2 mt-1">
                   <span className="text-xs font-extrabold text-[#061A33]">₹{combo.comboPrice}</span>
                   <span className="text-[10px] line-through text-slate-400">₹{combo.originalPrice}</span>
-                  <span className="text-[10px] font-bold text-emerald-600">Save ₹{combo.savings}</span>
+                  <span className="text-[10px] font-bold text-emerald-600">{t.saveAmount} ₹{combo.savings}</span>
                 </div>
               </div>
               <ChevronRight className="w-4 h-4 text-slate-400 group-hover:translate-x-0.5 transition-transform" />
@@ -480,11 +497,11 @@ export const HomeScreen: React.FC<{
         </div>
       </div>
 
-      {/* 10. Bottom Verified Highlights Bar (Matching Reference Mockup Bottom Strip) */}
+      {/* 10. Bottom Verified Highlights Bar */}
       <div className="bg-white rounded-3xl p-4 border border-slate-100 shadow-sm">
         <div className="text-center mb-3">
-          <p className="text-xs font-bold text-[#061A33]">The Vihaan Quality Standard</p>
-          <p className="text-[10px] text-slate-400">One App • Many Services • Endless Comfort</p>
+          <p className="text-xs font-bold text-[#061A33]">{t.qualityStandardTitle}</p>
+          <p className="text-[10px] text-slate-400">{t.qualityStandardSubtitle}</p>
         </div>
 
         <div className="grid grid-cols-4 sm:grid-cols-6 gap-3 text-center">
@@ -492,42 +509,42 @@ export const HomeScreen: React.FC<{
             <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-[#0B3A78] mb-1">
               <ShieldCheck className="w-4 h-4" />
             </div>
-            <span className="text-[9px] font-bold text-slate-700">Verified Pros</span>
+            <span className="text-[9px] font-bold text-slate-700">{t.verifiedPros}</span>
           </div>
 
           <div className="flex flex-col items-center">
             <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center text-[#D9A928] mb-1">
               <Clock className="w-4 h-4" />
             </div>
-            <span className="text-[9px] font-bold text-slate-700">Easy Booking</span>
+            <span className="text-[9px] font-bold text-slate-700">{t.easyBooking}</span>
           </div>
 
           <div className="flex flex-col items-center">
             <div className="w-8 h-8 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 mb-1">
               <Award className="w-4 h-4" />
             </div>
-            <span className="text-[9px] font-bold text-slate-700">7-Day Warranty</span>
+            <span className="text-[9px] font-bold text-slate-700">{t.warranty7Days}</span>
           </div>
 
           <div className="flex flex-col items-center">
             <div className="w-8 h-8 rounded-full bg-purple-50 flex items-center justify-center text-purple-600 mb-1">
               <Zap className="w-4 h-4" />
             </div>
-            <span className="text-[9px] font-bold text-slate-700">Real-Time Track</span>
+            <span className="text-[9px] font-bold text-slate-700">{t.realtimeTrack}</span>
           </div>
 
           <div className="flex flex-col items-center">
             <div className="w-8 h-8 rounded-full bg-amber-50 flex items-center justify-center text-[#D9A928] mb-1">
               <Gift className="w-4 h-4" />
             </div>
-            <span className="text-[9px] font-bold text-slate-700">Loyalty Cash</span>
+            <span className="text-[9px] font-bold text-slate-700">{t.loyaltyCash}</span>
           </div>
 
           <div className="flex flex-col items-center">
             <div className="w-8 h-8 rounded-full bg-rose-50 flex items-center justify-center text-rose-600 mb-1">
               <Headphones className="w-4 h-4" />
             </div>
-            <span className="text-[9px] font-bold text-slate-700">24x7 Support</span>
+            <span className="text-[9px] font-bold text-slate-700">{t.support24x7}</span>
           </div>
         </div>
       </div>

@@ -29,7 +29,8 @@ export const ProfileScreen: React.FC<{
     setLanguage,
     openModal,
     logout,
-    showToast
+    showToast,
+    t
   } = useApp();
 
   const [isEditing, setIsEditing] = useState(false);
@@ -231,7 +232,7 @@ export const ProfileScreen: React.FC<{
       <div className="bg-white rounded-3xl p-4 border border-slate-200/80 space-y-2">
         <h4 className="font-bold text-[#061A33] flex items-center gap-1.5">
           <Globe className="w-4 h-4 text-[#0B3A78]" />
-          <span>App Language / भाषा</span>
+          <span>{t.appLanguage}</span>
         </h4>
         <div className="grid grid-cols-3 gap-2">
           {[
@@ -243,12 +244,11 @@ export const ProfileScreen: React.FC<{
               key={l.id}
               onClick={() => {
                 setLanguage(l.id as any);
-                showToast(`Language set to ${l.label}`, 'info');
               }}
               className={`py-2 rounded-xl text-center font-bold border transition ${
                 language === l.id
-                  ? 'bg-[#061A33] text-white border-[#061A33]'
-                  : 'bg-slate-50 text-slate-600 border-slate-200'
+                  ? 'bg-[#061A33] text-white border-[#061A33] shadow-sm'
+                  : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
               }`}
             >
               {l.label}
@@ -263,7 +263,7 @@ export const ProfileScreen: React.FC<{
         className="w-full py-3 bg-red-50 hover:bg-red-100 text-red-600 rounded-2xl font-bold text-xs border border-red-200 transition flex items-center justify-center gap-2"
       >
         <LogOut className="w-4 h-4" />
-        <span>Sign Out from Vihaan</span>
+        <span>{t.signOut}</span>
       </button>
     </div>
   );

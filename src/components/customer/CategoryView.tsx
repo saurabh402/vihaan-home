@@ -25,11 +25,30 @@ export const CategoryView: React.FC<CategoryViewProps> = ({
   onBack,
   onSelectService
 }) => {
-  const { services, openModal } = useApp();
+  const { services, openModal, t } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSort, setSelectedSort] = useState<'recommended' | 'rating' | 'priceAsc' | 'priceDesc'>('recommended');
   const [filterInstantOnly, setFilterInstantOnly] = useState(false);
   const [filterUnder500, setFilterUnder500] = useState(false);
+
+  // Helper to translate category names dynamically
+  const getCategoryName = (slug: string, defaultName: string) => {
+    switch (slug) {
+      case 'salon': return t.catSalon;
+      case 'beauty': return t.catBeauty;
+      case 'spa': return t.catSpa;
+      case 'cleaning': return t.catCleaning;
+      case 'repair': return t.catRepair;
+      case 'pest-control': return t.catPestControl;
+      case 'home-improvement': return t.catHomeImprovement;
+      case 'moving': return t.catMoving;
+      case 'tech-services': return t.catTechServices;
+      case 'emergency': return t.catEmergency;
+      default: return defaultName;
+    }
+  };
+
+  const displayName = getCategoryName(category.slug, category.name);
 
   // Filter services by category slug/id
   const categoryServices = services.filter((s) => {
@@ -67,8 +86,8 @@ export const CategoryView: React.FC<CategoryViewProps> = ({
           <ArrowLeft className="w-5 h-5" />
         </button>
         <div className="text-center flex-1">
-          <h2 className="text-base font-bold text-[#061A33]">{category.name} Services</h2>
-          <p className="text-[10px] text-slate-400">{sortedServices.length} options available</p>
+          <h2 className="text-base font-bold text-[#061A33]">{displayName}</h2>
+          <p className="text-[10px] text-slate-400">{sortedServices.length} {t.servicesAvailable}</p>
         </div>
         <div className="w-9"></div>
       </div>
@@ -80,7 +99,7 @@ export const CategoryView: React.FC<CategoryViewProps> = ({
           type="text"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder={`Search in ${category.name}...`}
+          placeholder={`${t.searchInCategory} ${displayName}...`}
           className="w-full bg-transparent py-1.5 text-xs font-semibold text-[#061A33] placeholder-slate-400 focus:outline-none"
         />
       </div>
@@ -96,7 +115,7 @@ export const CategoryView: React.FC<CategoryViewProps> = ({
           }`}
         >
           <Zap className="w-3.5 h-3.5 text-amber-400" />
-          <span>90-Min Fast Track</span>
+          <span>{t.fastTrackFilter}</span>
         </button>
 
         <button
@@ -107,7 +126,7 @@ export const CategoryView: React.FC<CategoryViewProps> = ({
               : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
           }`}
         >
-          <span>Under ₹500</span>
+          <span>{t.under500Filter}</span>
         </button>
 
         <select
@@ -115,10 +134,10 @@ export const CategoryView: React.FC<CategoryViewProps> = ({
           onChange={(e) => setSelectedSort(e.target.value as any)}
           className="bg-white border border-slate-200 text-slate-700 text-xs rounded-full px-3 py-1.5 font-semibold focus:outline-none cursor-pointer"
         >
-          <option value="recommended">⭐ Recommended</option>
-          <option value="rating">Top Rated (4.8+)</option>
-          <option value="priceAsc">Price: Low to High</option>
-          <option value="priceDesc">Price: High to Low</option>
+          <option value="recommended">{t.sortRecommended}</option>
+          <option value="rating">{t.sortRating}</option>
+          <option value="priceAsc">{t.sortPriceAsc}</option>
+          <option value="priceDesc">{t.sortPriceDesc}</option>
         </select>
       </div>
 
